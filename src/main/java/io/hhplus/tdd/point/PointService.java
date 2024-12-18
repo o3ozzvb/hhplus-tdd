@@ -78,7 +78,12 @@ public class PointService {
 
         // 포인트 사용
         UserPoint usedPoint = userPoint.get().use(amount);
+        UserPoint updatedUserPoint = pointRepository.insertOrUpdate(usedPoint);
 
-        return pointRepository.insertOrUpdate(usedPoint);
+        // 히스토리 저장
+        PointHistory useHistory = PointHistory.createUseHistory(updatedUserPoint.id(), updatedUserPoint.point(), updatedUserPoint.updateMillis());
+        pointHistoryRepository.insert(useHistory);
+
+        return updatedUserPoint;
     }
 }

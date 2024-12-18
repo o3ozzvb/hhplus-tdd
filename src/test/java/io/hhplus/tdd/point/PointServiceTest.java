@@ -1,16 +1,13 @@
 package io.hhplus.tdd.point;
 
-import io.hhplus.tdd.exception.PointException;
 import io.hhplus.tdd.exception.PointErrorCode;
-import org.apache.catalina.User;
+import io.hhplus.tdd.exception.PointException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.awt.*;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -256,5 +253,28 @@ class PointServiceTest {
         // then
         verify(pointHistoryRepository)
                 .insert(PointHistory.createChargeHistory(id, amount, userPoint.updateMillis()));
+    }
+
+    @Test
+    void 사용후_히스토리_저장() {
+        // given
+        long id = 0L;
+        long amount = 100L;
+        long balance = 200L;
+        UserPoint userPoint = new UserPoint(id, balance, System.currentTimeMillis());
+        UserPoint expectedUserPoint = new UserPoint(id, balance - amount, System.currentTimeMillis());
+
+        when(pointRepository.selectById(id))
+                .thenReturn(Optional.of(userPoint));
+
+        when(pointRepository.insertOrUpdate(any(UserPoint.class)))
+                .thenReturn(expectedUserPoint);
+
+        // when
+        pointService.use(id, amount);
+
+        // then
+        verify(pointHistoryRepository)
+                .insert(PointHistory.createUseHistory(id, amount, userPoint.updateMillis()));
     }
 }
