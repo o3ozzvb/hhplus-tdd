@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -28,6 +29,9 @@ class PointServiceTest {
 
     @InjectMocks
     private PointService pointService;
+
+    @Mock
+    private ServiceLockFactory lockFactory;
 
     /**
      * 존재하지 않는 사용자
@@ -142,6 +146,9 @@ class PointServiceTest {
         long id = 0L;
         long amount = 100L;
 
+        when(lockFactory.getLock(id))
+                .thenReturn(new ReentrantLock());
+
         when(pointRepository.selectById(id))
                 .thenReturn(Optional.empty());
 
@@ -221,6 +228,9 @@ class PointServiceTest {
         long id = 0L;
         long amount = 100L;
 
+        when(lockFactory.getLock(id))
+                .thenReturn(new ReentrantLock());
+
         // when
         UserPoint userPoint = new UserPoint(id, 1000L, System.currentTimeMillis());
         when(pointRepository.selectById(id))
@@ -240,6 +250,9 @@ class PointServiceTest {
         long id = 0L;
         long amount = 100L;
         UserPoint userPoint = new UserPoint(id, amount, System.currentTimeMillis());
+
+        when(lockFactory.getLock(id))
+                .thenReturn(new ReentrantLock());
 
         when(pointRepository.selectById(id))
                 .thenReturn(Optional.empty());
@@ -263,6 +276,9 @@ class PointServiceTest {
         long balance = 200L;
         UserPoint userPoint = new UserPoint(id, balance, System.currentTimeMillis());
         UserPoint expectedUserPoint = new UserPoint(id, balance - amount, System.currentTimeMillis());
+
+        when(lockFactory.getLock(id))
+                .thenReturn(new ReentrantLock());
 
         when(pointRepository.selectById(id))
                 .thenReturn(Optional.of(userPoint));
