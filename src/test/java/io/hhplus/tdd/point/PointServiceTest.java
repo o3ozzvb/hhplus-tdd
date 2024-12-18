@@ -2,6 +2,7 @@ package io.hhplus.tdd.point;
 
 import io.hhplus.tdd.exception.PointException;
 import io.hhplus.tdd.exception.PointErrorCode;
+import org.apache.catalina.User;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -82,7 +84,7 @@ class PointServiceTest {
     }
 
     @Test
-    void 포인트_내역_조회() {
+    void 포인트_내역_조회_성공() {
         // given
         long id = 0L;
 
@@ -116,5 +118,45 @@ class PointServiceTest {
                                 expectedPointHistoryList.get(1).updateMillis()
                         )
                 );
+    }
+
+    /**
+     * 충전금액이 0보다 작으면 예외 발생
+     */
+    @Test
+    void 포인트_충전_실패() {
+        // given
+        long id = 0L;
+        long amount = -100L;
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> pointService.charge(id, amount))
+                .isInstanceOf(PointException.class)
+                .hasMessage(PointErrorCode.CHARGE_AMOUNT_LESS_THAN_ZERO.getMessage());
+    }
+
+    @Test
+    void 포인트_충전_성공() {
+        // given
+        long id = 0L;
+        long amount = 100L;
+
+        when(pointRepository.selectById(id))
+                .thenReturn(Optional.empty());
+
+        UserPoint expectedUserPoint = new UserPoint(id, amount, System.currentTimeMillis());
+
+        when(pointRepository.insertOrUpdate(any(UserPoint.class)))
+                .thenReturn(expectedUserPoint);
+
+        // when
+        UserPoint userPoint = pointService.charge(id, amount);
+
+        // then
+        assertThat(userPoint.id()).isEqualTo(expectedUserPoint.id());
+        assertThat(userPoint.point()).isEqualTo(expectedUserPoint.point());
+        assertThat(userPoint.updateMillis()).isEqualTo(expectedUserPoint.updateMillis());
     }
 }

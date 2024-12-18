@@ -32,4 +32,22 @@ public class PointService {
     public List<PointHistory> getUserPointHistory(long id) {
         return pointHistoryRepository.selectAllByuserId(id);
     }
+
+    /**
+     * 포인트 충전
+     * @param id 사용자 id
+     * @param amount 충전금액
+     * @return 충전 후 포인트
+     */
+    public UserPoint charge(long id, long amount) {
+        // 충전 금액 검증
+        if (amount < 0) {
+            throw new PointException(PointErrorCode.CHARGE_AMOUNT_LESS_THAN_ZERO);
+        }
+
+        UserPoint userPoint = pointRepository.selectById(id).orElse(UserPoint.empty(id));
+        UserPoint chargedPoint = userPoint.charge(amount);
+
+        return pointRepository.insertOrUpdate(chargedPoint);
+    }
 }
