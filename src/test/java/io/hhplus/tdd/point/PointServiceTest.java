@@ -159,4 +159,79 @@ class PointServiceTest {
         assertThat(userPoint.point()).isEqualTo(expectedUserPoint.point());
         assertThat(userPoint.updateMillis()).isEqualTo(expectedUserPoint.updateMillis());
     }
+
+    /**
+     * 사용금액이 0보다 작으면 예외 발생
+     */
+    @Test
+    void 포인트_사용_실패1() {
+        // given
+        long id = 0L;
+        long amount = -100L;
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> pointService.use(id, amount))
+                .isInstanceOf(PointException.class)
+                .hasMessage(PointErrorCode.USE_AMOUNT_LESS_THAN_ZERO.getMessage());
+    }
+
+    /**
+     * 포인트가 존재하지 않는 사용자이면 예외 발생
+     */
+    @Test
+    void 포인트_사용_실패2() {
+        // given
+        long id = 0L;
+        long amount = 100L;
+
+        // when
+        when(pointRepository.selectById(id))
+                .thenReturn(Optional.empty());
+
+        // then
+        assertThatThrownBy(() -> pointService.use(id, amount))
+                .isInstanceOf(PointException.class)
+                .hasMessage(PointErrorCode.BALANCE_LESS_THAN_USE_AMOUNT.getMessage());
+    }
+
+    /**
+     * 사용금액이 잔액보다 크면 예외 발생
+     */
+    @Test
+    void 포인트_사용_실패3() {
+        // given
+        long id = 0L;
+        long amount = 100L;
+
+        // when
+        UserPoint expectedPoint = new UserPoint(id, 50L, System.currentTimeMillis());
+        when(pointRepository.selectById(id))
+                .thenReturn(Optional.of(expectedPoint));
+
+        // then
+        assertThatThrownBy(() -> pointService.use(id, amount))
+                .isInstanceOf(PointException.class)
+                .hasMessage(PointErrorCode.BALANCE_LESS_THAN_USE_AMOUNT.getMessage());
+    }
+
+    @Test
+    void 포인트_사용_성공() {
+        // given
+        long id = 0L;
+        long amount = 100L;
+
+        // when
+        UserPoint userPoint = new UserPoint(id, 1000L, System.currentTimeMillis());
+        when(pointRepository.selectById(id))
+                .thenReturn(Optional.of(userPoint));
+        when(pointRepository.insertOrUpdate(any(UserPoint.class)))
+                .thenReturn(userPoint.use(amount));
+
+        // then
+        UserPoint usedPoint = pointService.use(id, amount);
+        assertThat(usedPoint.id()).isEqualTo(userPoint.id());
+        assertThat(usedPoint.point()).isEqualTo(userPoint.point() - amount);
+    }
 }
