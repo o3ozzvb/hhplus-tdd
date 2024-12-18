@@ -16,7 +16,7 @@ public class PointHistoryRepository {
         return pointHistoryTable.selectAllByUserId(id);
     }
 
-    private PointHistory insert(PointHistory pointHistory) {
+    public PointHistory insert(PointHistory pointHistory) {
         return pointHistoryTable.insert(pointHistory.userId(), pointHistory.amount(), pointHistory.type(), pointHistory.updateMillis());
     }
 }

@@ -46,10 +46,16 @@ public class PointService {
             throw new PointException(PointErrorCode.CHARGE_AMOUNT_LESS_THAN_ZERO);
         }
 
+        // 포인트 충전
         UserPoint userPoint = pointRepository.selectById(id).orElse(UserPoint.empty(id));
         UserPoint chargedPoint = userPoint.charge(amount);
+        UserPoint savedUserPoint = pointRepository.insertOrUpdate(chargedPoint);
 
-        return pointRepository.insertOrUpdate(chargedPoint);
+        // 히스토리 저장
+        PointHistory chargeHistory = PointHistory.createChargeHistory(savedUserPoint.id(), savedUserPoint.point(), savedUserPoint.updateMillis());
+        pointHistoryRepository.insert(chargeHistory);
+
+        return savedUserPoint;
     }
 
     /**

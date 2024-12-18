@@ -9,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.awt.*;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -233,5 +235,26 @@ class PointServiceTest {
         UserPoint usedPoint = pointService.use(id, amount);
         assertThat(usedPoint.id()).isEqualTo(userPoint.id());
         assertThat(usedPoint.point()).isEqualTo(userPoint.point() - amount);
+    }
+
+    @Test
+    void 충전후_히스토리_저장() {
+        // given
+        long id = 0L;
+        long amount = 100L;
+        UserPoint userPoint = new UserPoint(id, amount, System.currentTimeMillis());
+
+        when(pointRepository.selectById(id))
+                .thenReturn(Optional.empty());
+
+        when(pointRepository.insertOrUpdate(any(UserPoint.class)))
+                .thenReturn(userPoint);
+
+        // when
+        pointService.charge(id, amount);
+
+        // then
+        verify(pointHistoryRepository)
+                .insert(PointHistory.createChargeHistory(id, amount, userPoint.updateMillis()));
     }
 }
