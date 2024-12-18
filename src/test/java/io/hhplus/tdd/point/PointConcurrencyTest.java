@@ -32,27 +32,33 @@ public class PointConcurrencyTest {
         pointRepository.insertOrUpdate(new UserPoint(id, 0L, System.currentTimeMillis()));
 
         int threadCount = 30;
-        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
-        CountDownLatch latch = new CountDownLatch(threadCount);
 
         // when
-        for (int i = 0; i < threadCount; i++) {
-            executorService.submit(() -> {
-                try {
-                    pointService.charge(id, amount);
-                } finally {
-                    latch.countDown();
-                }
-            });
-        }
-        latch.await();
-        executorService.shutdown();
+        this.executorService(threadCount, () -> pointService.charge(id, amount));
 
         // then
         Optional<UserPoint> optionalUserPoint = pointRepository.selectById(id);
         assertThat(optionalUserPoint).isPresent();
         UserPoint userPoint = optionalUserPoint.get();
         assertThat(userPoint.point()).isEqualTo(amount * threadCount);
+    }
+
+    private void executorService(int threadCount, Runnable task) throws InterruptedException {
+        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        CountDownLatch latch = new CountDownLatch(threadCount);
+
+        for (int i = 0; i < threadCount; i++) {
+            executorService.submit(() -> {
+                try {
+                    task.run();
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        latch.await();
+        executorService.shutdown();
     }
 
 }
