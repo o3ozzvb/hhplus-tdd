@@ -127,7 +127,7 @@ class PointServiceTest {
      * 충전금액이 0보다 작으면 예외 발생
      */
     @Test
-    void 포인트_충전_실패() {
+    void 포인트_충전_실패1() {
         // given
         long id = 0L;
         long amount = -100L;
@@ -138,6 +138,23 @@ class PointServiceTest {
         assertThatThrownBy(() -> pointService.charge(id, amount))
                 .isInstanceOf(PointException.class)
                 .hasMessage(PointErrorCode.CHARGE_AMOUNT_LESS_THAN_ZERO.getMessage());
+    }
+
+    /**
+     * 충전금액이 최대 금액보다 크면 예외 발생
+     */
+    @Test
+    void 포인트_충전_실패2() {
+        // given
+        long id = 0L;
+        long amount = 2_000_000_001L;
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> pointService.charge(id, amount))
+                .isInstanceOf(PointException.class)
+                .hasMessage(PointErrorCode.CHARGE_AMOUNT_GREATER_THAN_MAX.getMessage());
     }
 
     @Test

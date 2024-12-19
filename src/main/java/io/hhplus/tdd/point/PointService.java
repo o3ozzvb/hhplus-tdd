@@ -44,9 +44,14 @@ public class PointService {
      * @return 충전 후 포인트
      */
     public UserPoint charge(long id, long amount) {
+        long MAX_VALUE = 2_000_000_000L;
+
         // 충전 금액 검증
         if (amount < 0) {
             throw new PointException(PointErrorCode.CHARGE_AMOUNT_LESS_THAN_ZERO);
+        }
+        if (amount > MAX_VALUE) {
+            throw new PointException(PointErrorCode.CHARGE_AMOUNT_GREATER_THAN_MAX);
         }
 
         ReentrantLock lock = lockFactory.getLock(id);
