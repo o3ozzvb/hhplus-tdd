@@ -1,5 +1,7 @@
 # 동시성 제어 방식에 대한 보고서
 
+---
+
 ## Concurrency (동시성)
 - `동시에 실행되는 것처럼 보이는 것`
 - 싱글 코어에서 멀티 스레드를 동작시키기 위한 방식으로, 멀티 태스킹을 위해 `여러 개의 스레드가 번갈아가면서 실행`되는 성질을 의미
@@ -47,6 +49,35 @@
 ### 공정한 Lock
 - 공정한 Lock을 사용할 경우 경쟁이 발생하였을 때 가장 오래 기다린 `Thread`에게 `lock`을 제공
 - `Synchronized`는 공정성을 지원하지 않음. 반면 `ReentrantLock`은 생성자의 인자를 통해 공정/불공정 설정이 가능.
+<br>
+<br>
+---
+## Concurrent 패키지
+### **java.util.concurrent**  
+Java 5 부터 도입. 동기화가 필요한 상황에서 사용할 수 있는 다양한 유틸리티 클래스 제공
+- Locks : 상호 배제를 사용할 수 있는 클래스 제공
+- Atomic : 동기화가 되어있는 변수 제공
+- Executors : 쓰레드 풀 생성, 쓰레드 생명주기 관리, Task 등록과 실행 등을 간편하게 처리 가능  
+  --개발자가 Thread를 하나하나 관리하기가 어려워 쓰레드를 만들고 관리하는 작업을 Executor 에게 위임
+  - `execute(Runnable)`, `submit(Runnable)` : 쓰레드 작업 수행
+  - `shutdown()` : 할 일을 마치고 종료
+  - `shutdownNow()` : 즉시 종료  
+- Queue : thread-safe 한 FIFO 큐 제공
+- Synchronizers : 특수한 목적의 동기화를 처리하는 5개의 클래스 제공 (Semaphore, CountDownLatch, CyclicBarrier, Phaser, Exchanger)
+
+### 주요 인터페이스
+#### 1. **Executors** : 쓰레드 풀의 구현을 위한 인터페이스. **등록된 작업을 실행하는 책임**만 가짐.
+- newFixedThreadPool() : 고정된 쓰레드의 갯수를 갖는 쓰레드 풀 생성.  
+`ExecutorService` 인터페이스를 구현한 `ThreadPoolExecutor` 객체가 생성됨.
+
+#### 2. **ExecutorService** : `Executor` 인터페이스를 상속받은 인터페이스. **작업 등록**을 위한 인터페이스
+- shutdonw() : 라이프사이클을 관리하기 위한 메서드
+- submit() : 내부에서 해당 작업을 스케줄링하면서 적절하게 일을 처리함.
+
+> ### 쓰레드 풀을 구현해야 하는 이유
+> 1. 소규모 많은 요청이 들어올 경우 쓰레드 생성 및 종료에 따른 오버헤드가 발생한다.
+> 2. 생성되는 쓰레드 개수에 제한이 없어 OutOfMemoryError가 발생할 수 있다.
+> 3. 많은 수의 쓰레드가 실행될 경우, 쓰레드 스케줄링에 따른 오버헤드가 발생한다.
 
 
 
