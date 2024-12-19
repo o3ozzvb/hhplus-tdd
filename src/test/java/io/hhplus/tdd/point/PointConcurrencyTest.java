@@ -43,6 +43,27 @@ public class PointConcurrencyTest {
         assertThat(userPoint.point()).isEqualTo(amount * threadCount);
     }
 
+    @Test
+    void 사용_동시성_제어_테스트() throws InterruptedException {
+        // given
+        long id = 1L;
+        long balance = 10000L;
+        long amount = 100L;
+
+        pointRepository.insertOrUpdate(new UserPoint(id, balance, System.currentTimeMillis()));
+
+        int threadCount = 30;
+
+        // when
+        this.executorService(threadCount, () -> pointService.use(id, amount));
+
+        // then
+        Optional<UserPoint> optionalUserPoint = pointRepository.selectById(id);
+        assertThat(optionalUserPoint).isPresent();
+        UserPoint userPoint = optionalUserPoint.get();
+        assertThat(userPoint.point()).isEqualTo(balance - amount * threadCount);
+    }
+
     private void executorService(int threadCount, Runnable task) throws InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
