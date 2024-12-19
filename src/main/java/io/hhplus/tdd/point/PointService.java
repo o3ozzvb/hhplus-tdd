@@ -83,17 +83,18 @@ public class PointService {
             throw new PointException(PointErrorCode.USE_AMOUNT_LESS_THAN_ZERO);
         }
 
-        // 사용 금액이 잔액보다 크면 예외 발생
-        Optional<UserPoint> userPoint = pointRepository.selectById(id);
-        if (userPoint.isEmpty() || userPoint.get().point() < amount) {
-            throw new PointException(PointErrorCode.BALANCE_LESS_THAN_USE_AMOUNT);
-        }
-
         ReentrantLock lock = lockFactory.getLock(id);
 
         lock.lock();
 
         try {
+
+            // 사용 금액이 잔액보다 크면 예외 발생
+            Optional<UserPoint> userPoint = pointRepository.selectById(id);
+            if (userPoint.isEmpty() || userPoint.get().point() < amount) {
+                throw new PointException(PointErrorCode.BALANCE_LESS_THAN_USE_AMOUNT);
+            }
+
             // 포인트 사용
             UserPoint usedPoint = userPoint.get().use(amount);
             UserPoint updatedUserPoint = pointRepository.insertOrUpdate(usedPoint);
