@@ -209,6 +209,9 @@ class PointServiceTest {
         long id = 0L;
         long amount = 100L;
 
+        when(lockFactory.getLock(id))
+                .thenReturn(new ReentrantLock());
+
         // when
         when(pointRepository.selectById(id))
                 .thenReturn(Optional.empty());
@@ -227,6 +230,9 @@ class PointServiceTest {
         // given
         long id = 0L;
         long amount = 100L;
+
+        when(lockFactory.getLock(id))
+                .thenReturn(new ReentrantLock());
 
         // when
         UserPoint expectedPoint = new UserPoint(id, 50L, System.currentTimeMillis());
