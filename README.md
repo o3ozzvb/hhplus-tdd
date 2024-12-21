@@ -58,7 +58,7 @@ Java 5 부터 도입. 동기화가 필요한 상황에서 사용할 수 있는 �
 - Locks : 상호 배제를 사용할 수 있는 클래스 제공
 - Atomic : 동기화가 되어있는 변수 제공
 - Executors : 쓰레드 풀 생성, 쓰레드 생명주기 관리, Task 등록과 실행 등을 간편하게 처리 가능  
-  --개발자가 Thread를 하나하나 관리하기가 어려워 쓰레드를 만들고 관리하는 작업을 Executor 에게 위임
+  - 개발자가 Thread를 하나하나 관리하기가 어려워 쓰레드를 만들고 관리하는 작업을 Executor 에게 위임
   - `execute(Runnable)`, `submit(Runnable)` : 쓰레드 작업 수행
   - `shutdown()` : 할 일을 마치고 종료
   - `shutdownNow()` : 즉시 종료  
