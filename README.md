@@ -49,9 +49,8 @@
 ### 공정한 Lock
 - 공정한 Lock을 사용할 경우 경쟁이 발생하였을 때 가장 오래 기다린 `Thread`에게 `lock`을 제공
 - `Synchronized`는 공정성을 지원하지 않음. 반면 `ReentrantLock`은 생성자의 인자를 통해 공정/불공정 설정이 가능.
-<br>
-<br>
 ---
+
 ## Concurrent 패키지
 ### **java.util.concurrent**  
 Java 5 부터 도입. 동기화가 필요한 상황에서 사용할 수 있는 다양한 유틸리티 클래스 제공
